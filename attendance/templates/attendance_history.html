@@ -1,0 +1,7 @@
+{% for attendance in attendance_history %}
+<tr>
+    <td>{{ attendance.lecture.module }}</td>
+    <td>{{ attendance.timestamp|date:"D d M Y" }}</td>
+    <td>{% if attendance.attendance_status %}Present{% else %}Absent{% endif %}</td>
+</tr>
+{% endfor %}

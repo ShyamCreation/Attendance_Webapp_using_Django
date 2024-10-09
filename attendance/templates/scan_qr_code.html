@@ -1,0 +1,227 @@
+<!-- '''
+Made by Yadav Shyam (21SE02ML059),
+           Anurag Panday (21SE02ML035).
+contact: yadavshyam7048@gmail.com
+Work in progress. here print statement is only for debug purpose. some of lines of code is not used in project.
+''' -->
+{% extends 'base.html' %}
+
+{% block title %}Scan QR Code{% endblock %}
+
+{% block content %}
+    <h2>Scan QR Code</h2>
+    <!-- Video stream for scanning QR code -->
+    <div id="video-container" style="position: relative; width: 400px; height: 300px;">
+        <video id="video" width="400" height="300" style="display: block;"></video>
+        <canvas id="scannerCanvas" width="400" height="300" style="position: absolute; top: 0; left: 0;"></canvas>
+    </div>
+    <!-- Display latitude and longitude -->
+    <p>Latitude: <span id="latitude_display"></span></p>
+    <p>Longitude: <span id="longitude_display"></span></p>
+
+    <!-- Display error messages -->
+    <p id="error_message"></p>
+
+    <!-- JavaScript for fetching location and scanning QR code -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.0.0/dist/jsQR.js"></script>
+
+    <!-- JavaScript for fetching location and scanning QR code -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let latitude, longitude;
+            let qrCodeData;
+            let watchId; // Store the ID returned by watchPosition
+            let scanningAnimation; // Reference to the scanning animation interval
+
+            // Function to fetch current location
+            function getLocation() {
+                if (navigator.geolocation) {
+                    watchId = navigator.geolocation.watchPosition(updatePosition, showError, { enableHighAccuracy: true });
+                } else {
+                    displayErrorMessage("Geolocation is not supported by this browser.");
+                }
+            }
+
+            // Function to handle position updates
+            function updatePosition(position) {
+                latitude = position.coords.latitude;
+                longitude = position.coords.longitude;
+                document.getElementById("latitude_display").innerText = latitude;
+                document.getElementById("longitude_display").innerText = longitude;
+
+                startScan();
+            }
+
+            // Function to handle errors in geolocation
+            function showError(error) {
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        displayErrorMessage("User denied the request for Geolocation.");
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        displayErrorMessage("Location information is unavailable.");
+                        break;
+                    case error.TIMEOUT:
+                        displayErrorMessage("The request to get user location timed out.");
+                        break;
+                    case error.UNKNOWN_ERROR:
+                        displayErrorMessage("An unknown error occurred.");
+                        break;
+                }
+            }
+
+            // Function to display error message
+            function displayErrorMessage(message) {
+                const errorMessageElement = document.getElementById("error_message");
+                if (errorMessageElement) {
+                    errorMessageElement.innerText = message;
+                } else {
+                    console.error("Error message element not found.");
+                }
+            }
+
+            // Function to start scanning QR code
+            function startScan() {
+                const video = document.getElementById('video');
+                const scannerCanvas = document.getElementById('scannerCanvas');
+
+                if (!video || !scannerCanvas) {
+                    console.error("Video or scanner canvas element not found.");
+                    return;
+                }
+
+                // Add event listener for loadedmetadata event to ensure video dimensions are available
+                video.addEventListener('loadedmetadata', function() {
+                    console.log("Video metadata loaded.");
+                    setTimeout(captureImage, 2000);
+                    startScanningAnimation(scannerCanvas);
+                });
+
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                    .then(stream => {
+                        video.srcObject = stream;
+                        video.play()
+                            .catch(error => {
+                                console.error('Error playing video:', error);
+                                displayErrorMessage("Error playing video.");
+                            });
+                    })
+                    .catch(error => {
+                        console.error('Error accessing camera:', error);
+                        displayErrorMessage("Error accessing camera. Please check permissions.");
+                    });
+            }
+
+            // Function to start the scanning animation
+            function startScanningAnimation(canvas) {
+                const ctx = canvas.getContext('2d');
+                let scanLineY = 0;
+                const scanSpeed = 2; // Adjust the scanning speed as desired
+
+                scanningAnimation = setInterval(() => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.beginPath();
+                    ctx.moveTo(0, scanLineY);
+                    ctx.lineTo(canvas.width, scanLineY);
+                    ctx.strokeStyle = 'rgba(0, 255, 0, 0.5)'; // Adjust the scanning line color and opacity as desired
+                    ctx.lineWidth = 2; // Adjust the scanning line width as desired
+                    ctx.stroke();
+
+                    scanLineY += scanSpeed;
+                    if (scanLineY > canvas.height) {
+                        scanLineY = 0;
+                    }
+                }, 10); // Adjust the animation frame rate as desired
+            }
+
+            // Function to stop the scanning animation
+            function stopScanningAnimation() {
+                clearInterval(scanningAnimation);
+            }
+
+            function captureImage() {
+                const video = document.getElementById('video');
+
+                if (!video || video.videoWidth === 0 || video.videoHeight === 0) {
+                    console.error("Video element not found or has invalid dimensions.");
+                    return;
+                }
+
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                console.log("Image captured.");
+
+                // Detect QR code
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                if (!imageData) {
+                    console.error("Failed to get image data.");
+                    return;
+                }
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+                if (code) {
+                    qrCodeData = canvas.toDataURL('image/png');
+                    console.log("QR code detected:", qrCodeData);
+                    // Stop video stream
+                    if (video.srcObject) {
+                        video.srcObject.getTracks().forEach(track => track.stop());
+                    }
+                    // Stop scanning animation
+                    stopScanningAnimation();
+                    // Call send function
+                    send();
+                } else {
+                    console.log("No QR code detected.");
+                    // Retry capture after 1 second
+                    setTimeout(captureImage, 1000);
+                }
+            }
+
+            // Function to capture image from video stream and submit form
+            function send() {
+                // Create a form and append input fields for latitude, longitude, and QR code data
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/scan-qr-code/';  // Adjust URL as per your Django view configuration
+
+                // Append CSRF token to the form
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = 'csrfmiddlewaretoken';
+                csrfToken.value = '{{ csrf_token }}';
+                form.appendChild(csrfToken);
+
+                const latitudeInput = document.createElement('input');
+                latitudeInput.type = 'hidden';
+                latitudeInput.name = 'latitude';
+                latitudeInput.value = latitude;
+                form.appendChild(latitudeInput);
+
+                const longitudeInput = document.createElement('input');
+                longitudeInput.type = 'hidden';
+                longitudeInput.name = 'longitude';
+                longitudeInput.value = longitude;
+                form.appendChild(longitudeInput);
+
+                const qrCodeDataInput = document.createElement('input');
+                qrCodeDataInput.type = 'hidden';
+                qrCodeDataInput.name = 'qr_code_data';
+                qrCodeDataInput.value = qrCodeData;
+                form.appendChild(qrCodeDataInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+
+            // Call getLocation function to fetch location when the page loads
+            window.onload = function() {
+                getLocation();
+            };
+        });
+    </script>
+{% endblock %}

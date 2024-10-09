@@ -1,0 +1,30 @@
+<!-- '''
+Made by Yadav Shyam (21SE02ML059),
+           Anurag Panday (21SE02ML035).
+contact: yadavshyam7048@gmail.com
+Work in progress. here print statement is only for debug purpose. some of lines of code is not used in project.
+''' -->
+<!-- access_personal_details.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Access Personal Details</title>
+</head>
+<body>
+    <h2>Access Personal Details</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="id_image">Upload Your Image:</label>
+        <input type="file" name="image" id="id_image" accept="image/*">
+        <button type="submit">Submit</button>
+    </form>
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>

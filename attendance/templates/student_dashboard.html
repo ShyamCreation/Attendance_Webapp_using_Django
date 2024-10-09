@@ -1,0 +1,41 @@
+<!-- '''
+Made by Yadav Shyam (21SE02ML059),
+           Anurag Panday (21SE02ML035).
+contact: yadavshyam7048@gmail.com
+Work in progress. here print statement is only for debug purpose. some of lines of code is not used in project.
+''' -->
+{% extends 'base.html' %}
+{% load tz %}
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+    <button onclick="scanQRCode()">Scan QR Code for Attendance</button>
+    <h3>Attendance Information</h3>
+    <p>Total Attended Lectures: {{ total_attended_lectures }}</p>
+    <p>Total Lectures Conducted: {{ total_lectures_conducted }}</p>
+    <p>Attendance Percentage: {{ attendance_percentage }}%</p>
+    <script>
+        // Function to open scan QR code page
+        function scanQRCode() {
+            window.location.href = "{% url 'save_face_data' %}";
+        }
+    </script>
+
+    <h2>Recent Lectures Conducted:</h2>
+    <ul>
+        {% for lecture in lectures_conducted %}
+            <li>{{ lecture }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Recent Lectures Attended:</h2>
+    <ul>
+        {% for attendance in lectures_attended %}
+            <li>{{ attendance.lecture }}- Attended at {{ attendance.timestamp}}</li>
+        {% endfor %}
+    </ul>    
+{% endblock %}
+
+{% block footer %}
+    <a href="{% url 'logout' %}">Logout</a>
+{% endblock %}

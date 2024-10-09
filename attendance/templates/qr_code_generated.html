@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QR Code Generated</title>
+    <link rel="icon" type="image/x-icon" href="\media\download.png">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        h2 {
+            color: #234585;
+        }
+
+        img {
+            margin-top: 20px;
+            max-width: 80%;
+            height: auto;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        p {
+            margin-top: 20px;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h2>Welcome, {{ user.username }}</h2>
+    <h2>QR Code Generated</h2>
+    <img src="{{ MEDIA_URL }}{{ img_path }}" alt="QR Code">
+    <p><a href="{% url 'lecturer_dashboard' %}">Back to Dashboard</a></p>
+</body>
+</html>

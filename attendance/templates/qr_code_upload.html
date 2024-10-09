@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QR Code Upload</title>
+</head>
+<body>
+    <h1>Upload QR Code</h1>
+    <form id="qr-upload-form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="qr_code_image" id="qr_code_image">
+        <button type="submit">Upload</button>
+    </form>
+    <div id="qr_code_data"></div>
+
+    <script>
+        document.getElementById('qr-upload-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append('qr_code_image', document.getElementById('qr_code_image').files[0]);
+
+            fetch('/qr_code/upload/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('qr_code_data').textContent = data.qr_code_text;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        });
+    </script>
+</body>
+</html>

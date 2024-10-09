@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Added viewport meta tag -->
+    <title>Lecturer Dashboard</title>
+    <link rel="icon" type="image/x-icon" href="\media\download.png">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #234585;
+            color: #fff;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap; /* Added flex-wrap for smaller screens */
+            justify-content: center; /* Center items */
+            align-items: center;
+            text-align: center; /* Center text */
+            width: 100%; /* Match table width */
+        }
+        .logo {
+            /* Styles for logo */
+            width: 50px;
+            height: 50px;
+            position: absolute; /* Position the logo relative to its closest positioned ancestor */
+            top: 40px; /* Adjust top position */
+            left: 20px; /* Adjust left position */
+            /* Pushes the logo to the far left */
+            border-radius: 50%; /* Makes it circular */
+            overflow: hidden; 
+        }
+        .logo img {
+            /* Styles for logo image */
+            height: 100%; /* Make the image fill the circular container */
+            width: 100%; /* Make the image fill the circular container */
+            object-fit: cover; /* Maintain aspect ratio and cover the entire container */
+        }
+        h1 {
+            margin: 0;
+            flex: 100%; /* Full width for smaller screens */
+        }
+        .date {
+            font-size: 18px;
+            flex: 100%; /* Full width for smaller screens */
+        }
+        main {
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: block; /* Added to make button full width on smaller screens */
+            width: 100%; /* Make button full width on smaller screens */
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px; /* Added spacing between tables */
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            width: 100%; /* Match table width */
+        }
+        footer p {
+            margin: 0;
+        }
+        @media only screen and (max-width: 600px) {
+            table {
+                font-size: 12px; /* Decreased font size for better fit on smaller screens */
+            }
+            header {
+                flex-direction: column; /* Stack items vertically */
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="\media\download.png" alt="Logo">
+        </div>
+        <h1>Welcome, {{ user.username }}</h1>
+        <div class="date">Current Date: <span id="currentDate"></span></div>
+        <a href="{% url 'logout' %}">Logout</a>
+    </header>
+
+    <main>
+        <a href="{% url 'generate_qr_code' %}"><button>Create New Lecture</button></a>
+
+        <h2>QR Code History</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Time Slot</th>
+                    <th>Department</th>
+                    <th>Course</th>
+                    <th>Semester</th>
+                    <th>Location</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if qr_codes %}
+                    {% for qr_code in qr_codes %}
+                        <tr>
+                            <td>{{ qr_code.time_slot }}</td>
+                            <td>{{ qr_code.department }}</td>
+                            <td>{{ qr_code.course }}</td>
+                            <td>{{ qr_code.semester }}</td>
+                            <td>{{ qr_code.location }}</td>
+                            <td>{{qr_code.timestamp }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="7">No QR codes created yet.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        <h2>Timetable </h2>
+        <h4>Format: Course (Department, Semester) </h4>
+        <table>
+            <tr>
+                <th>Time</th>
+                <th>Monday</th>
+                <th>Tuesday</th>
+                <th>Wednesday</th>
+                <th>Thursday</th>
+                <th>Friday</th>
+                <th>Saturday</th> <!-- Added Saturday -->
+                <!-- Add more days if needed -->
+            </tr>
+            {% for time_slot in time_slots %}
+                <tr>
+                    <td>{{ time_slot.start_time }} - {{ time_slot.end_time }}</td>
+                    {% for day in days %}
+                        <td>
+                            {% for entry in timetable %}
+                                {% if entry.day_of_week == day and entry.time_slot == time_slot %}
+                                    {{ entry.course.name }} ({{ entry.department.name }}, {{ entry.semester.name }})
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+    </main>
+    <footer>
+        <!-- Your footer content here -->
+        <p>&copy; 2024 Automation live. All rights reserved.</p>
+    </footer>
+    
+    <script>
+        // Get current date and format it
+        const currentDateElement = document.getElementById('currentDate');
+        const currentDate = new Date();
+        const formattedDate = currentDate.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        // Update the date in the HTML
+        currentDateElement.textContent = formattedDate;
+    </script>
+</body>
+</html>

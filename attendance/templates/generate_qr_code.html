@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate QR Code</title>
+    <link rel="icon" type="image/x-icon" href="\media\download.png">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        h2 {
+            background-color: #234585;
+            color: #fff;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        form {
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        select,
+        input[type="datetime-local"],
+        input[type="text"] {
+            padding: 8px;
+            width: 100%;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        button[type="submit"] {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+        }
+
+        .logout-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        /* Responsive layout */
+        @media only screen and (max-width: 600px) {
+            form {
+                padding: 10px;
+            }
+        }
+    </style>
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+            } else {
+                console.log("Geolocation is not supported by this browser.");
+            }
+        }
+
+        function showPosition(position) {
+            document.getElementById("latitude").value = position.coords.latitude;
+            document.getElementById("longitude").value = position.coords.longitude;
+            document.getElementById("location").value = `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`;
+        }
+    </script>
+</head>
+<body onload="getLocation()">
+    <h2>
+        Welcome, {{ user.username }}
+        <a href="{% url 'logout' %}"><button>Logout</button></a>
+    </h2>
+    <h2>Generate QR Code</h2>
+    <form method="post">
+        {% csrf_token %}
+        <label for="time_slot">Time Slot:</label>
+        <select name="time_slot" id="time_slot" required>
+            {% for time_slot_id, time_slot_label in time_slot_choices %}
+                <option value="{{ time_slot_id }}">{{ time_slot_label }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="department">Department:</label>
+        <select name="department" id="department" required>
+            {% for department_id, department_name in department_choices %}
+                <option value="{{ department_id }}">{{ department_name }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="course">Course:</label>
+        <select name="course" id="course" required>
+            {% for course_id, course_name in course_choices %}
+                <option value="{{ course_id }}">{{ course_name }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="semester">Semester:</label>
+        <select name="semester" id="semester" required>
+            {% for semester_id, semester_name in semester_choices %}
+                <option value="{{ semester_id }}">{{ semester_name }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Keep input fields for location, longitude, and latitude -->
+        <label for="location">Location:</label>
+        <input type="text" name="location" id="location" required>
+
+        <label for="latitude">Latitude:</label>
+        <input type="text" name="latitude" id="latitude" required>
+
+        <label for="longitude">Longitude:</label>
+        <input type="text" name="longitude" id="longitude" required>
+        
+        <button type="submit">Generate QR Code</button>
+    </form>
+
+    <script>
+        function logout() {
+            // Add your logout logic here
+            alert("Logout button clicked!");
+        }
+    </script>
+</body>
+</html>

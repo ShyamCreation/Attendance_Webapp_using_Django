@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}Save Face Data{% endblock %}
+
+{% block content %}
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #videoContainer {
+            text-align: center;
+        }
+        #videoElement {
+            max-width: 100%;
+            height: auto;
+        }
+        #capturedImageContainer {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #capturedImageContainer img {
+            max-width: 100%;
+            height: auto;
+        }
+        button {
+            display: block;
+            margin: 0 auto;
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .disabled-button {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+
+    <h1>Save Face Data</h1>
+    
+    <div id="videoContainer">
+        <video id="videoElement" autoplay></video>
+    </div>
+    <br>
+    <button onclick="captureImage()">Capture Image</button>
+    <button id="saveImageButton" class="disabled-button" onclick="saveImage()" disabled>Save Image</button>
+
+    <div id="capturedImageContainer"></div>
+
+    <script>
+        let capturedImageData;
+
+        // Initialize the webcam
+        async function startVideo() {
+            const videoElement = document.getElementById('videoElement');
+            const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+            videoElement.srcObject = stream;
+        }
+
+        startVideo();
+
+        // Capture image from video stream
+        async function captureImage() {
+            const videoElement = document.getElementById('videoElement');
+            const canvas = document.createElement('canvas');
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            canvas.getContext('2d').drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+            const imageDataURL = canvas.toDataURL('image/png');
+
+            // Display captured image
+            const capturedImageContainer = document.getElementById('capturedImageContainer');
+            capturedImageContainer.innerHTML = ''; // Clear previous images
+            const capturedImage = document.createElement('img');
+            capturedImage.src = imageDataURL;
+            capturedImageContainer.appendChild(capturedImage);
+
+            // Store captured image data
+            capturedImageData = imageDataURL;
+
+            // Enable the "Save Image" button
+            const saveImageButton = document.getElementById('saveImageButton');
+            saveImageButton.disabled = false;
+            saveImageButton.classList.remove('disabled-button');
+        }
+
+        // Function to retrieve CSRF token from cookie
+        function getCookie(name) {
+            const cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+            return cookieValue ? cookieValue.pop() : '';
+        }
+
+        // Save captured image data to the server using form submission
+        function saveImage() {
+            const imageData = capturedImageData;
+            const csrfToken = getCookie('csrftoken'); // Retrieve CSRF token from cookie
+
+            // Create a form dynamically
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/save-face-data/'; // Replace with your server endpoint
+
+            // Create an input field for the CSRF token
+            const csrfTokenInput = document.createElement('input');
+            csrfTokenInput.type = 'hidden';
+            csrfTokenInput.name = 'csrfmiddlewaretoken';
+            csrfTokenInput.value = csrfToken;
+
+            // Append the CSRF token input field to the form
+            form.appendChild(csrfTokenInput);
+
+            // Create an input field for the image data
+            const imageDataInput = document.createElement('input');
+            imageDataInput.type = 'hidden';
+            imageDataInput.name = 'image_data';
+            imageDataInput.value = imageData;
+
+            // Append the image data input field to the form
+            form.appendChild(imageDataInput);
+
+            // Append the form to the document body and submit it
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
+{% endblock %}

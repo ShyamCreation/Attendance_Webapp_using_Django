@@ -1,0 +1,58 @@
+name,username,email,password
+1.Manish Pandey,21se02ml025,mp1503255@gmail.com,665544  MLAI, Sem_6
+2.Anurag Srivastva,21se02ml045,as1503244@gmail.com,665577 Information Technology Sem_4
+3.bipin yadav,21se02ml066,by884423@gmail.com,665588  CSE Sem_8
+4.Shyam singh,21se02ml031,Singh235678@gmail.com,665599 Chemical Sem_2
+5.Sumit dholakiya,21se02ml011,sumit348675@gmail.com,987346  ITE Sem_8
+
+teacher:
+
+    Name: Neha Sharma
+        Username: nehasharma78
+        Email: nehasharma78@example.com
+        Password: Teacher@123
+	MLAI, ITE Sem_6 Sem_4
+	Computer network
+	Cloud Computing
+	Algebra Mathematic
+	Java
+	HTML and Css
+	Statistic
+
+    Name: Rajesh Patel
+        Username: rajeshp_55
+        Email: rajesh.patel@example.com
+        Password: Educate@55
+	Information Technology Sem_4
+	Corporate Grooming & Etiquette
+	3D Modeling and Rendering
+	System Programming	
+
+
+
+    Name: Priya Singhania
+        Username: priyas_09
+        Email: priya.singhania@example.com
+        Password: Learnmore#09
+	CSE Sem_8
+	Cloud Computing & Applications 
+	Image processing with Python
+	Integrated Personality
+
+    Name: Anand Gupta
+        Username: anandg_teach
+        Email: anand.gupta@example.com
+        Password: ProfAnand@123
+	Chemical Sem_2, 
+	Reactor reaction
+	Chemical Process
+
+    Name: Divya Mishra
+        Username: divyamish
+        Email: divya.mishra@example.com
+        Password: Mishra@Teach12
+	ITE Sem_8
+	Mobile Application Programming
+	C programming
+	Python Development
+

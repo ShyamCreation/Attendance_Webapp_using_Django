@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Face Recognition</title>
+    <!-- Include face-api.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@latest/face-api.min.js"></script>
+</head>
+<body>
+    <h1>Face Recognition</h1>
+    <canvas id="overlay" width="640" height="480"></canvas>
+    
+    <script>
+        // Load face recognition models
+        async function loadModels() {
+            await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api@latest/models');
+            await faceapi.nets.faceLandmark68Net.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api@latest/models');
+            await faceapi.nets.faceRecognitionNet.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api@latest/models');
+        }
+
+        // Perform face recognition
+        async function recognizeFaces() {
+            // Load saved face data from backend (replace with actual endpoint)
+            const response = await fetch('/get-saved-face-data/');
+            const savedFaceData = await response.json();
+
+            // Load models
+            await loadModels();
+
+            // Get video element
+            const video = document.createElement('video');
+            video.srcObject = await navigator.mediaDevices.getUserMedia({ video: {} });
+            document.body.appendChild(video);
+            video.play();
+
+            // Create canvas for overlay
+            const canvas = document.getElementById('overlay');
+            const context = canvas.getContext('2d');
+
+            video.addEventListener('play', async () => {
+                setInterval(async () => {
+                    // Detect faces in video stream
+                    const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors();
+
+                    // Clear canvas
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+
+                    // Draw face recognition results
+                    detections.forEach(detection => {
+                        const match = savedFaceData.find(face => face.descriptor === detection.descriptor.toString());
+                        const text = match ? `Match: ${match.username}` : 'Unknown';
+                        const box = detection.detection.box;
+
+                        context.strokeStyle = match ? 'green' : 'red';
+                        context.lineWidth = 2;
+                        context.strokeRect(box.x, box.y, box.width, box.height);
+                        context.fillStyle = 'white';
+                        context.fillText(text, box.x + 5, box.y + 15);
+                    });
+                }, 100);
+            });
+        }
+
+        // Start face recognition
+        recognizeFaces();
+    </script>
+</body>
+</html>

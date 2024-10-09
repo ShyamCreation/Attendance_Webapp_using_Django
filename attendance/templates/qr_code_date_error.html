@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Error Page</title>
+  <link rel="icon" type="image/x-icon" href="\media\download.png">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      text-align: center; /* Center the content */
+    }
+    h1 {
+      color: red; /* Error message color */
+      font-weight: bold;
+      margin-top: 20vh; /* Center vertically */
+    }
+    .error {
+      color: Black; /* Error message color */
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Something went wrong!</h1>
+<h2 class="error">{{ error_message }} 😒</h2> <!-- Display error message here -->
+</body>
+</html>

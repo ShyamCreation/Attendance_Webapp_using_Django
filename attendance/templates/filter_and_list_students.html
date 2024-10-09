@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filter Students</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        form, .grid-container {
+            margin: 0 auto;
+            max-width: 600px;
+            padding: 10px;
+        }
+        label, select, input[type="submit"] {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .student {
+            text-align: center;
+        }
+        .student img {
+            max-width: 100%;
+            height: auto;
+        }
+        @media only screen and (max-width: 600px) {
+            .grid-container {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Filter Students</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="department">Select Department:</label>
+        <select name="department" id="department">
+            {% for department in departments %}
+            <option value="{{ department.id }}">{{ department.name }}</option>
+            {% endfor %}
+        </select>
+        <label for="semester">Select Semester:</label>
+        <select name="semester" id="semester">
+            {% for semester in semesters %}
+            <option value="{{ semester.id }}">{{ semester.name }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="Filter">
+    </form>
+    
+    {% if students %}
+    <h2>Filtered Students</h2>
+    <div class="grid-container">
+        {% for student in students %}
+        <div class="student">
+            <strong>{{ student.first_name }} {{ student.last_name }}</strong>
+            <img src="{{ student.face_data }}" alt="Student Image">
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</body>
+</html>
